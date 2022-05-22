@@ -28,7 +28,10 @@ int main()
 	int		i = 0;
 
 	while(i++<1000)
-		root = add_value(root, create_int(i), &intcmp);
+		if(!add_value(&root, create_int(i), &intcmp)) {
+			printf("error.\n");
+			break;
+		}
 
 	int key = 555;
 

@@ -113,20 +113,24 @@ static red_black_tree *insert_red_leaf(red_black_tree* leaf, void* value, functi
 	}
 }
 
-red_black_tree *add_value(red_black_tree* root, void* value, function_to_compare f)
+int add_value(red_black_tree** root, void* value, function_to_compare f)
 {
-	red_black_tree* son;
+	red_black_tree* buff;
 
-	if(!root) {
-		if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
-			return NULL;
-		memset(son, 0, sizeof(red_black_tree));
-		son->color = Black;
-		son->data = value;
-		return son;
+	if(!*root) {
+		if(!(buff = (red_black_tree*)malloc(sizeof(red_black_tree))))
+			return FALSE;
+		memset(buff, 0, sizeof(red_black_tree));
+		buff->color = Black;
+		buff->data = value;
+		*root = buff;
+		return TRUE;
 	}
 
-	return insert_red_leaf(root, value, f);
+	if(!(buff = insert_red_leaf(*root, value, f)))
+		return FALSE;
+	*root = buff;
+	return TRUE;
 }
 
 red_black_tree *search_value(red_black_tree* leaf, void* value, function_to_compare f)
