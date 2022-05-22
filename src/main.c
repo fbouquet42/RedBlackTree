@@ -27,13 +27,13 @@ int main()
 	red_black_tree*	root = NULL;
 	int		i = 0;
 
-	while(i++<1000)
+	while(i++<10000)
 		if(!add_value(&root, create_int(i), &intcmp)) {
 			printf("error.\n");
 			break;
 		}
 
-	int key = 555;
+	int key = 5555;
 
 	if(search_value(root, (void*)&key, &intcmp))
 		printf("value found.\n");
