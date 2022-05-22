@@ -3,6 +3,8 @@
 
 # define TRUE 1
 # define FALSE 0
+# define UNCLE(x) (x->parent->left == x) ? x->parent->right : x->parent->left
+# define TRIANGLE(x, y, z) (x->left == y && y->left != z) || (x->right == y && y->right != z)
 
 typedef struct s_rbt
 {

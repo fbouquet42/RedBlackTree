@@ -3,45 +3,114 @@
 #include <stdlib.h>
 #include <string.h>
 
-static red_black_tree* rebalance_tree(red_black_tree* root, void* value, function_to_compare f)
+//if parent is red ?
+
+static void promote_node(red_black_tree* to_promote)
 {
-	(void)value;
-	(void)f;
-	return root;
+	red_black_tree* parent = to_promote->parent;
+	red_black_tree* buff;
+
+	if(!parent)
+		return ;
+
+	//grandparent
+	to_promote->parent = parent->parent;
+	if(parent->parent) {
+		if(parent->parent->left == parent)
+			parent->parent->left = to_promote;
+		else
+			parent->parent->right = to_promote;
+	}
+	//parent
+	parent->parent = to_promote;
+	if(parent->left == to_promote) {
+		buff = to_promote->right;
+
+		to_promote->right = parent;
+		parent->left = buff;
+	}
+	else {
+		buff = to_promote->left;
+
+		to_promote->left = parent;
+		parent->right = buff;
+	}
+
+	if(buff)
+		buff->parent = parent;
 }
 
-static int insert_red_element(red_black_tree* parent, void* value, function_to_compare f)
+static red_black_tree *insert_red_element(red_black_tree* element, void* value, function_to_compare f)
 {
-	if(f(parent->data, value) > 0) {
-		if(!parent->left) {
+	if(f(element->data, value) > 0) {
+		if(!element->left) {
 			red_black_tree* son;
 			if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
-				return FALSE;
+				return NULL;
 			memset(son, 0, sizeof(red_black_tree));
 			son->color = Red;
 			son->data = value;
-			son->parent = parent;
-			parent->left = son;
-			return TRUE;	
+			son->parent = element;
+			element->left = son;
 		}
-		return insert_red_element(parent->left, value, f);
+		else
+			element = insert_red_element(element->left, value, f);
 	}
-	else if(f(parent->data, value) < 0) {
-		if(!parent->right) {
+	else if(f(element->data, value) < 0) {
+		if(!element->right) {
 			red_black_tree* son;
 			if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
-				return FALSE;
+				return NULL;
 			memset(son, 0, sizeof(red_black_tree));
 			son->color = Red;
 			son->data = value;
-			son->parent = parent;
-			parent->right = son;
-			return TRUE;	
+			son->parent = element;
+			element->right = son;
 		}
-		return insert_red_element(parent->right, value, f);
+		else
+			element = insert_red_element(element->right, value, f);
 	}
-	else
-		return FALSE;
+
+	if(!element->parent)
+		element->color = Black;
+
+	if(element->color == Black)
+		return element->parent ? element->parent : element;
+
+	//Double red check
+	if((!element->left || !(element->left->color == Red)) && (!element->right || !(element->left->color == Red)))
+		return element->parent;
+
+	red_black_tree* uncle = UNCLE(element);
+
+	if(!uncle || uncle->color == Black) {
+		red_black_tree* red_son;
+		if(!element->left)
+			red_son = element->right;
+		else
+			red_son = (element->left->color == Red) ? element->left : element->right;
+
+		red_black_tree* parent = element->parent;
+		parent->color = Red;
+
+		if(TRIANGLE(parent, element, red_son)) { //triangle
+			promote_node(red_son);
+			promote_node(red_son);
+			red_son->color = Black;
+			return red_son;
+		}
+		else { //triangle
+			promote_node(element);
+			element->color = Black;
+			return element;
+		}
+	}
+	else {
+		element->color = Black;
+		uncle->color = Black;
+		element->parent->color = Red;
+		return element->parent;
+	}
 }
 
 red_black_tree *add_value(red_black_tree* root, void* value, function_to_compare f)
@@ -57,8 +126,5 @@ red_black_tree *add_value(red_black_tree* root, void* value, function_to_compare
 		return son;
 	}
 
-	if(!insert_red_element(root, value, f))
-		return NULL;
-
-	return rebalance_tree(root, value, f);
+	return insert_red_element(root, value, f);
 }
