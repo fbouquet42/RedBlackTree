@@ -1,6 +1,7 @@
 #include "rbt.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 static int intcmp(void* elem1, void* elem2)
 {
@@ -23,13 +24,16 @@ static void* create_int(int value) {
 
 int main()
 {
-	red_black_tree *root = NULL;
+	red_black_tree*	root = NULL;
+	int		i = 0;
 
-	root = add_value(root, create_int(0), &intcmp);
-	root = add_value(root, create_int(1), &intcmp);
-	root = add_value(root, create_int(2), &intcmp);
-	root = add_value(root, create_int(3), &intcmp);
-	root = add_value(root, create_int(4), &intcmp);
-	root = add_value(root, create_int(5), &intcmp);
+	while(i++<1000)
+		root = add_value(root, create_int(i), &intcmp);
+
+	int key = 555;
+
+	if(search_value(root, (void*)&key, &intcmp))
+		printf("value found.\n");
+	free_tree(root);
 	return 0;
 }

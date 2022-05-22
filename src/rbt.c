@@ -128,3 +128,27 @@ red_black_tree *add_value(red_black_tree* root, void* value, function_to_compare
 
 	return insert_red_leaf(root, value, f);
 }
+
+red_black_tree *search_value(red_black_tree* leaf, void* value, function_to_compare f)
+{
+	if(!leaf)
+		return NULL;
+	if(f(leaf->data, value) > 0) {
+		return search_value(leaf->left, value, f);
+	}
+	else if(f(leaf->data, value) < 0) {
+		return search_value(leaf->right, value, f);
+	}
+	else
+		return leaf;
+}
+
+void free_tree(red_black_tree* leaf)
+{
+	if(!leaf)
+		return ;
+	free_tree(leaf->left);
+	free_tree(leaf->right);
+	free(leaf->data);
+	free(leaf);
+}
