@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//if parent is red ?
-
 static void promote_node(red_black_tree* to_promote)
 {
 	red_black_tree* parent = to_promote->parent;
@@ -70,6 +68,8 @@ static red_black_tree *insert_red_element(red_black_tree* element, void* value, 
 		else
 			element = insert_red_element(element->right, value, f);
 	}
+	else
+		return NULL;
 
 	if(!element->parent)
 		element->color = Black;
@@ -78,7 +78,7 @@ static red_black_tree *insert_red_element(red_black_tree* element, void* value, 
 		return element->parent ? element->parent : element;
 
 	//Double red check
-	if((!element->left || !(element->left->color == Red)) && (!element->right || !(element->left->color == Red)))
+	if((!element->left || !(element->left->color == Red)) && (!element->right || !(element->right->color == Red)))
 		return element->parent;
 
 	red_black_tree* uncle = UNCLE(element);
