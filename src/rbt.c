@@ -3,34 +3,34 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void promote_node(red_black_tree* to_promote)
+static void promote_leaf(red_black_tree* leaf)
 {
-	red_black_tree* parent = to_promote->parent;
+	red_black_tree* parent = leaf->parent;
 	red_black_tree* buff;
 
 	if(!parent)
 		return ;
 
 	//grandparent
-	to_promote->parent = parent->parent;
+	leaf->parent = parent->parent;
 	if(parent->parent) {
 		if(parent->parent->left == parent)
-			parent->parent->left = to_promote;
+			parent->parent->left = leaf;
 		else
-			parent->parent->right = to_promote;
+			parent->parent->right = leaf;
 	}
 	//parent
-	parent->parent = to_promote;
-	if(parent->left == to_promote) {
-		buff = to_promote->right;
+	parent->parent = leaf;
+	if(parent->left == leaf) {
+		buff = leaf->right;
 
-		to_promote->right = parent;
+		leaf->right = parent;
 		parent->left = buff;
 	}
 	else {
-		buff = to_promote->left;
+		buff = leaf->left;
 
-		to_promote->left = parent;
+		leaf->left = parent;
 		parent->right = buff;
 	}
 
@@ -38,78 +38,78 @@ static void promote_node(red_black_tree* to_promote)
 		buff->parent = parent;
 }
 
-static red_black_tree *insert_red_element(red_black_tree* element, void* value, function_to_compare f)
+static red_black_tree *insert_red_leaf(red_black_tree* leaf, void* value, function_to_compare f)
 {
-	if(f(element->data, value) > 0) {
-		if(!element->left) {
+	if(f(leaf->data, value) > 0) {
+		if(!leaf->left) {
 			red_black_tree* son;
 			if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
 				return NULL;
 			memset(son, 0, sizeof(red_black_tree));
 			son->color = Red;
 			son->data = value;
-			son->parent = element;
-			element->left = son;
+			son->parent = leaf;
+			leaf->left = son;
 		}
 		else
-			element = insert_red_element(element->left, value, f);
+			leaf = insert_red_leaf(leaf->left, value, f);
 	}
-	else if(f(element->data, value) < 0) {
-		if(!element->right) {
+	else if(f(leaf->data, value) < 0) {
+		if(!leaf->right) {
 			red_black_tree* son;
 			if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
 				return NULL;
 			memset(son, 0, sizeof(red_black_tree));
 			son->color = Red;
 			son->data = value;
-			son->parent = element;
-			element->right = son;
+			son->parent = leaf;
+			leaf->right = son;
 		}
 		else
-			element = insert_red_element(element->right, value, f);
+			leaf = insert_red_leaf(leaf->right, value, f);
 	}
 	else
 		return NULL;
 
-	if(!element->parent)
-		element->color = Black;
+	if(!leaf->parent)
+		leaf->color = Black;
 
-	if(element->color == Black)
-		return element->parent ? element->parent : element;
+	if(leaf->color == Black)
+		return leaf->parent ? leaf->parent : leaf;
 
 	//Double red check
-	if((!element->left || !(element->left->color == Red)) && (!element->right || !(element->right->color == Red)))
-		return element->parent;
+	if((!leaf->left || !(leaf->left->color == Red)) && (!leaf->right || !(leaf->right->color == Red)))
+		return leaf->parent;
 
-	red_black_tree* uncle = UNCLE(element);
+	red_black_tree* uncle = UNCLE(leaf);
 
 	if(!uncle || uncle->color == Black) {
 		red_black_tree* red_son;
-		if(!element->left)
-			red_son = element->right;
+		if(!leaf->left)
+			red_son = leaf->right;
 		else
-			red_son = (element->left->color == Red) ? element->left : element->right;
+			red_son = (leaf->left->color == Red) ? leaf->left : leaf->right;
 
-		red_black_tree* parent = element->parent;
+		red_black_tree* parent = leaf->parent;
 		parent->color = Red;
 
-		if(TRIANGLE(parent, element, red_son)) { //triangle
-			promote_node(red_son);
-			promote_node(red_son);
+		if(TRIANGLE(parent, leaf, red_son)) { //triangle
+			promote_leaf(red_son);
+			promote_leaf(red_son);
 			red_son->color = Black;
 			return red_son;
 		}
 		else { //triangle
-			promote_node(element);
-			element->color = Black;
-			return element;
+			promote_leaf(leaf);
+			leaf->color = Black;
+			return leaf;
 		}
 	}
 	else {
-		element->color = Black;
+		leaf->color = Black;
 		uncle->color = Black;
-		element->parent->color = Red;
-		return element->parent;
+		leaf->parent->color = Red;
+		return leaf->parent;
 	}
 }
 
@@ -126,5 +126,5 @@ red_black_tree *add_value(red_black_tree* root, void* value, function_to_compare
 		return son;
 	}
 
-	return insert_red_element(root, value, f);
+	return insert_red_leaf(root, value, f);
 }
