@@ -23,6 +23,7 @@ typedef int (*function_to_compare)(void* elem1, void* elem2);
 int		add_value(red_black_tree** root, void* value, function_to_compare f);
 int		remove_value(red_black_tree** root, void* value, function_to_compare f);
 red_black_tree*	search_value(red_black_tree* leaf, void* value, function_to_compare f);
+int		get_tree_depth(red_black_tree* leaf);
 void		free_tree(red_black_tree* leaf);
 
 #endif //RBT_H

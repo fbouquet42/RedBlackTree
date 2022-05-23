@@ -3,6 +3,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+int get_tree_depth(red_black_tree* leaf)
+{
+	if(!leaf)
+		return 0;
+	int left;
+	int right;
+
+	left = get_tree_depth(leaf->left);
+	right = get_tree_depth(leaf->right);
+
+	return (left > right) ? left + 1 : right + 1;
+}
+
 static void promote_leaf(red_black_tree* leaf)
 {
 	red_black_tree* parent = leaf->parent;
@@ -206,6 +219,7 @@ static void resolve_double_black(red_black_tree* parent, red_black_tree* leaf)
 		}
 	}
 }
+
 static void remove_leaf(red_black_tree* leaf)
 {
 	if(NB_OF_CHILDREN(leaf) < 2) {
@@ -223,9 +237,8 @@ static void remove_leaf(red_black_tree* leaf)
 				leaf->parent->left = branch;
 			else
 				leaf->parent->right = branch;
-		}
-		if(!branch && leaf->color == Black) {
-			resolve_double_black(leaf->parent, NULL);
+			if(!branch && leaf->color == Black)
+				resolve_double_black(leaf->parent, NULL);
 		}
 		free(leaf->data);
 		free(leaf);

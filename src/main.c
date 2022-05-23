@@ -27,22 +27,24 @@ int main()
 	red_black_tree*	root = NULL;
 	int		i = 0;
 
-	while(i++<100000)
+	while(i++<6) {
 		if(!add_value(&root, create_int(i), &intcmp)) {
 			printf("error.\n");
 			break;
 		}
+	}
 
-	int key = 5555;
-
-	if(search_value(root, (void*)&key, &intcmp))
-		printf("value found.\n");
-
-	while(i++<3333)
+	i = 0;
+	printf("depth is:%i\n", get_tree_depth(root));
+	while(i++<2) {
 		if(!remove_value(&root, &i, &intcmp)) {
 			printf("error.\n");
 			break;
 		}
+	}
+
+	printf("depth is:%i\n", get_tree_depth(root));
+	int key = 5;
 
 	if(search_value(root, (void*)&key, &intcmp))
 		printf("value found.\n");
