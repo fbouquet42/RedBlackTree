@@ -178,23 +178,54 @@ static red_black_tree *find_rightmost_leaf(red_black_tree* leaf)
 		return find_rightmost_leaf(leaf->right);
 }
 
+static void resolve_double_black(red_black_tree* parent, red_black_tree* leaf)
+{
+	red_black_tree* sibling = (parent->left == leaf) ? parent->right : parent->left;
+
+	if(sibling->color == Red) {
+		parent->color = Red;
+		sibling->color = Black;
+		promote_leaf(sibling);
+		resolve_double_black(parent, leaf);
+	}
+	else {
+		if(COLOR_OF_CHILD(sibling) == Red) {
+			promote_leaf(sibling);
+			sibling->color = parent->color;
+			sibling->left->color = Black;
+			sibling->right->color = Black;
+		}
+		else {
+			sibling->color = Red;
+			if(!parent->parent)
+				return;
+			if(parent->color == Red)
+				parent->color = Black;
+			else
+				resolve_double_black(parent->parent, parent);
+		}
+	}
+}
 static void remove_leaf(red_black_tree* leaf)
 {
 	if(NB_OF_CHILDREN(leaf) < 2) {
-		red_black_tree* buff = NULL;
+		red_black_tree* branch = NULL;
 		if(leaf->left)
-			buff = leaf->left;
+			branch = leaf->left;
 		else if(leaf->right)
-			buff = leaf->right;
-		if(buff) {
-			buff->parent = leaf->parent;
-			buff->color = Black;
+			branch = leaf->right;
+		if(branch) {
+			branch->parent = leaf->parent;
+			branch->color = Black;
 		}
 		if(leaf->parent) {
 			if(leaf->parent->left == leaf)
-				leaf->parent->left = buff;
+				leaf->parent->left = branch;
 			else
-				leaf->parent->right = buff;
+				leaf->parent->right = branch;
+		}
+		if(!branch && leaf->color == Black) {
+			resolve_double_black(leaf->parent, NULL);
 		}
 		free(leaf->data);
 		free(leaf);
@@ -206,49 +237,51 @@ static void remove_leaf(red_black_tree* leaf)
 	}
 }
 
-static red_black_tree *recursive_remove_value(red_black_tree* leaf, void* value, function_to_compare f)
+static red_black_tree* get_root(red_black_tree* leaf)
 {
-
-	if(!leaf)
-		return NULL;
-	if(f(leaf->data, value) > 0) {
-		leaf = recursive_remove_value(leaf->left, value, f);
+	while(leaf) {
+		if(!leaf->parent)
+			break;
+		leaf = leaf->parent;
 	}
-	else if(f(leaf->data, value) < 0) {
-		leaf = recursive_remove_value(leaf->right, value, f);
-	}
-	else {
-		remove_leaf(leaf);
-	}
-	return NULL;
+	return leaf;
 }
 
 int remove_value(red_black_tree** root, void* value, function_to_compare f)
 {
-	red_black_tree* buff;
+	red_black_tree* leaf;
 
 	if(!*root)
 		return FALSE;
 
-	if(!(buff = recursive_remove_value(*root, value, f)))
+	if(!(leaf = search_value(*root, value, f)))
 		return FALSE;
 
-	*root = buff;
+	red_black_tree* child = (*root)->left ? (*root)->left : (*root)->right;
+
+	remove_leaf(leaf);
+
+	if(leaf == *root)
+		*root = get_root(child);
+	else
+		*root = get_root(*root);
+
 	return TRUE;
 }
 
 red_black_tree *search_value(red_black_tree* leaf, void* value, function_to_compare f)
 {
-	if(!leaf)
-		return NULL;
-	if(f(leaf->data, value) > 0) {
-		return search_value(leaf->left, value, f);
+	while(leaf) {
+		if(f(leaf->data, value) > 0)
+			leaf = leaf->left;
+		else if(f(leaf->data, value) < 0) {
+			leaf = leaf->right;
+		}
+		else
+			break;
 	}
-	else if(f(leaf->data, value) < 0) {
-		return search_value(leaf->right, value, f);
-	}
-	else
-		return leaf;
+	return leaf;
+
 }
 
 void free_tree(red_black_tree* leaf)

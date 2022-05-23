@@ -27,7 +27,7 @@ int main()
 	red_black_tree*	root = NULL;
 	int		i = 0;
 
-	while(i++<10000)
+	while(i++<100000)
 		if(!add_value(&root, create_int(i), &intcmp)) {
 			printf("error.\n");
 			break;
@@ -37,6 +37,16 @@ int main()
 
 	if(search_value(root, (void*)&key, &intcmp))
 		printf("value found.\n");
+
+	while(i++<3333)
+		if(!remove_value(&root, &i, &intcmp)) {
+			printf("error.\n");
+			break;
+		}
+
+	if(search_value(root, (void*)&key, &intcmp))
+		printf("value found.\n");
+
 	free_tree(root);
 	return 0;
 }
