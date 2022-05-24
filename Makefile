@@ -19,7 +19,7 @@ EOC=\033[0m
 
 S_PATH= src/
 SRCIN = $(addprefix $(S_PATH), $(SRCS))
-SRCS = main.c rbt.c
+SRCS = main.c rbt.c stdmap.c
 
 #============HEADERS============#
 

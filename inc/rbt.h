@@ -3,6 +3,7 @@
 
 # define TRUE 1
 # define FALSE 0
+# define ERROR -1
 
 # define SIBLING(x) (x->parent->left == x) ? x->parent->right : x->parent->left
 # define NB_OF_CHILDREN(x) ((int)(x->left != NULL) + (int)(x->right != NULL))
@@ -18,8 +19,9 @@ typedef struct s_rbt
 	enum {Red, Black}	color;
 }				red_black_tree;
 
-typedef int (*function_to_compare)(void* elem1, void* elem2);
+typedef int (*function_to_compare)(const void* elem1, const void* elem2);
 
+int 		tree_is_valid(red_black_tree* leaf);
 int		add_value(red_black_tree** root, void* value, function_to_compare f);
 int		remove_value(red_black_tree** root, void* value, function_to_compare f);
 red_black_tree*	search_value(red_black_tree* leaf, void* value, function_to_compare f);
