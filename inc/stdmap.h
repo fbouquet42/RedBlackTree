@@ -8,14 +8,14 @@ typedef struct	s_stdmap {
 	int		size;
 }		stdmap;
 
-int	add_key(stdmap* map, char* key, void* val);
-int	replace_key(stdmap* map, char* key, void* val);
-int	append_key(stdmap* map, char* key, void* val);
+int	add_key(stdmap* map, const char* key, void* val);
+int	replace_key(stdmap* map, const char* key, void* val);
+int	append_key(stdmap* map, const char* key, void* val);
 
-int	remove_key(stdmap* map, char* key);
+int	remove_key(stdmap* map, const char* key);
 
 int	get_size(const stdmap* map);
-void*	get_key(const stdmap* map, char* key);
+void*	get_key(const stdmap* map, const char* key);
 
 void	clear_map(stdmap* map);
 

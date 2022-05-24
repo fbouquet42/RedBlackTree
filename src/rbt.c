@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <stdio.h>
 static int recursive_check_tree(red_black_tree* leaf)
 {
 	if(!leaf)
@@ -294,7 +293,7 @@ static red_black_tree* get_root(red_black_tree* leaf)
 	return leaf;
 }
 
-int remove_value(red_black_tree** root, void* value, function_to_compare f)
+int remove_value(red_black_tree** root, const void* value, function_to_compare f)
 {
 	red_black_tree* leaf;
 
@@ -316,27 +315,27 @@ int remove_value(red_black_tree** root, void* value, function_to_compare f)
 	return TRUE;
 }
 
-red_black_tree *search_value(red_black_tree* leaf, void* value, function_to_compare f)
+void* search_value(red_black_tree* leaf, const void* value, function_to_compare f)
 {
 	while(leaf) {
 		if(f(leaf->data, value) > 0)
 			leaf = leaf->left;
-		else if(f(leaf->data, value) < 0) {
+		else if(f(leaf->data, value) < 0)
 			leaf = leaf->right;
-		}
 		else
 			break;
 	}
-	return leaf;
-
+	if(!leaf)
+		return NULL;
+	return leaf->data;
 }
 
-void free_tree(red_black_tree* leaf)
+void free_tree(red_black_tree* leaf, function_to_free f)
 {
 	if(!leaf)
-		return ;
-	free_tree(leaf->left);
-	free_tree(leaf->right);
-	free(leaf->data);
+		return;
+	free_tree(leaf->left, f);
+	free_tree(leaf->right, f);
+	f(leaf->data);
 	free(leaf);
 }
