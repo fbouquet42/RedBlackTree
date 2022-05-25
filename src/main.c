@@ -41,17 +41,23 @@ int main()
 	while(i++ != 2) {
 		rand_string(rand_name, 20);
 		printf("addr:%i key:%s\n", i, rand_name);
-		add_key(map, (char*)rand_name, new_value(i));
+		map_add_key(map, (char*)rand_name, new_value(i));
 	}
-	add_key(map, "felix", new_value(101));
-	add_key(map, "pelix", new_value(101));
-	add_key(map, "gelix", new_value(101));
-	add_key(map, "nelix", new_value(101));
-	add_key(map, "helix", new_value(101));
-	add_key(map, "kkelix", new_value(101));
-	printf("search key:%s, for value: %i\n", ".p.hsoGhgwF.hdutnna", *((int*)get_key(map, ".p.hsoGhgwF.hdutnna")));
-	printf("search key:%s, for value: %i\n", rand_name, *((int*)get_key(map, rand_name)));
-	printf("search key:%s, for value: %i\n", "felix", *((int*)get_key(map, "felix")));
+
+
+	map_add_key(map, "felix", new_value(101));
+	map_add_key(map, "pelix", new_value(101));
+	map_add_key(map, "gelix", new_value(101));
+	map_add_key(map, "nelix", new_value(101));
+	map_add_key(map, "helix", new_value(101));
+	map_add_key(map, "kkelix", new_value(101));
+
+
+
+
+	printf("search key:%s, for value: %i\n", ".p.hsoGhgwF.hdutnna", *((int*)map_get_key(map, ".p.hsoGhgwF.hdutnna")));
+	printf("search key:%s, for value: %i\n", rand_name, *((int*)map_get_key(map, rand_name)));
+	printf("search key:%s, for value: %i\n", "felix", *((int*)map_get_key(map, "felix")));
 	delete_map(map);
 	return 0;
 }

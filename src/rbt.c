@@ -84,48 +84,20 @@ static void promote_leaf(red_black_tree* leaf)
 		buff->parent = parent;
 }
 
-static red_black_tree *insert_red_leaf(red_black_tree* leaf, void* value, function_to_compare f)
+static red_black_tree *resolve_tree(red_black_tree* leaf)
 {
-	if(f(leaf->data, value) > 0) {
-		if(!leaf->left) {
-			red_black_tree* son;
-			if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
-				return NULL;
-			memset(son, 0, sizeof(red_black_tree));
-			son->color = Red;
-			son->data = value;
-			son->parent = leaf;
-			leaf->left = son;
-		}
-		else
-			leaf = insert_red_leaf(leaf->left, value, f);
-	}
-	else if(f(leaf->data, value) < 0) {
-		if(!leaf->right) {
-			red_black_tree* son;
-			if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
-				return NULL;
-			memset(son, 0, sizeof(red_black_tree));
-			son->color = Red;
-			son->data = value;
-			son->parent = leaf;
-			leaf->right = son;
-		}
-		else
-			leaf = insert_red_leaf(leaf->right, value, f);
-	}
-	else
-		return NULL;
 
-	if(!leaf->parent)
+	if(!leaf->parent) {
 		leaf->color = Black;
+		return leaf;
+	}
 
 	if(leaf->color == Black)
-		return leaf->parent ? leaf->parent : leaf;
+		return resolve_tree(leaf->parent);
 
 	//Double red check
 	if((!leaf->left || !(leaf->left->color == Red)) && (!leaf->right || !(leaf->right->color == Red)))
-		return leaf->parent;
+		return resolve_tree(leaf->parent);
 
 	red_black_tree* uncle = SIBLING(leaf);
 
@@ -143,39 +115,74 @@ static red_black_tree *insert_red_leaf(red_black_tree* leaf, void* value, functi
 			promote_leaf(red_son);
 			promote_leaf(red_son);
 			red_son->color = Black;
-			return red_son;
+			return resolve_tree(red_son);
 		}
 		else { //triangle
 			promote_leaf(leaf);
 			leaf->color = Black;
-			return leaf;
+			return resolve_tree(leaf);
 		}
 	}
 	else {
 		leaf->color = Black;
 		uncle->color = Black;
 		leaf->parent->color = Red;
-		return leaf->parent;
+		return resolve_tree(leaf->parent);
 	}
 }
 
 int add_value(red_black_tree** root, void* value, function_to_compare f)
 {
-	red_black_tree* buff;
+	red_black_tree* leaf;
 
 	if(!*root) {
-		if(!(buff = (red_black_tree*)malloc(sizeof(red_black_tree))))
+		if(!(leaf = (red_black_tree*)malloc(sizeof(red_black_tree))))
 			return FALSE;
-		memset(buff, 0, sizeof(red_black_tree));
-		buff->color = Black;
-		buff->data = value;
-		*root = buff;
+		memset(leaf, 0, sizeof(red_black_tree));
+		leaf->color = Black;
+		leaf->data = value;
+		*root = leaf;
 		return TRUE;
 	}
 
-	if(!(buff = insert_red_leaf(*root, value, f)))
-		return FALSE;
-	*root = buff;
+	leaf = *root;
+	while(leaf) {
+		if(f(leaf->data, value) > 0) {
+			if(!leaf->left) {
+				red_black_tree* son;
+				if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
+					return FALSE;
+				memset(son, 0, sizeof(red_black_tree));
+				son->color = Red;
+				son->data = value;
+				son->parent = leaf;
+				leaf->left = son;
+				break;
+			}
+			else
+				leaf = leaf->left;
+		}
+		else if(f(leaf->data, value) < 0) {
+			if(!leaf->right) {
+				red_black_tree* son;
+				if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
+					return FALSE;
+				memset(son, 0, sizeof(red_black_tree));
+				son->color = Red;
+				son->data = value;
+				son->parent = leaf;
+				leaf->right = son;
+				break;
+			}
+			else
+				leaf = leaf->right;
+		}
+		else
+			return FALSE;
+	}
+
+	*root = resolve_tree(leaf);
+
 	return TRUE;
 }
 

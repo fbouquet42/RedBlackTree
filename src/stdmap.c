@@ -6,6 +6,11 @@
 
 #include <stdio.h>
 
+typedef struct	s_stdmap {
+	void		*root;
+	int		size;
+}		stdmap;
+
 typedef struct	s_map_pair {
 	char* key;
 	void* val;
@@ -43,7 +48,7 @@ static void* new_pair(const char* key, void* val)
 	return pair;
 }
 
-int	add_key(stdmap* map, const char* key, void* val)
+int	map_add_key(stdmap* map, const char* key, void* val)
 {
 	map_pair*	pair;
 
@@ -59,7 +64,7 @@ int	add_key(stdmap* map, const char* key, void* val)
 	return TRUE;
 }
 
-int	replace_key(stdmap* map, const char* key, void* val)
+int	map_replace_key(stdmap* map, const char* key, void* val)
 {
 	(void)map;
 	(void)key;
@@ -67,7 +72,7 @@ int	replace_key(stdmap* map, const char* key, void* val)
 	return FALSE;
 }
 
-int	append_key(stdmap* map, const char* key, void* val)
+int	map_append_key(stdmap* map, const char* key, void* val)
 {
 	(void)map;
 	(void)key;
@@ -75,7 +80,7 @@ int	append_key(stdmap* map, const char* key, void* val)
 	return FALSE;
 }
 
-int	remove_key(stdmap* map, const char* key)
+int	map_remove_key(stdmap* map, const char* key)
 {
 	red_black_tree* root = (red_black_tree*)map->root;
 	if(!remove_value(&root, (const void*)key, &map_pair_key_cmp))
@@ -85,12 +90,12 @@ int	remove_key(stdmap* map, const char* key)
 	return TRUE;
 }
 
-int	get_size(const stdmap* map)
+int	map_get_size(const stdmap* map)
 {
 	return map->size;
 }
 
-void*	get_key(const stdmap* map, const char* key)
+void*	map_get_key(const stdmap* map, const char* key)
 {
 	map_pair* pair;
 	pair = (map_pair*)search_value((red_black_tree*)(map->root), (const void*)key, &map_pair_key_cmp);

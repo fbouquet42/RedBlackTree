@@ -1,27 +1,29 @@
 #ifndef STD_MAP_H
 # define STD_MAP_H
 
-struct s_rbt;
+typedef struct s_stdmap stdmap;
+typedef struct s_stdmap_it stdmap_it;
 
-typedef struct	s_stdmap {
-	void		*root;
-	int		size;
-}		stdmap;
+int		map_add_key(stdmap* map, const char* key, void* val);
+int		map_replace_key(stdmap* map, const char* key, void* val); //TODO
+int		map_append_key(stdmap* map, const char* key, void* val); //TODO
+int		map_remove_key(stdmap* map, const char* key);
 
-int	add_key(stdmap* map, const char* key, void* val);
-int	replace_key(stdmap* map, const char* key, void* val);
-int	append_key(stdmap* map, const char* key, void* val);
+int		map_get_size(const stdmap* map);
+void*		map_get_key(const stdmap* map, const char* key);
 
-int	remove_key(stdmap* map, const char* key);
+/*
+stdmap_it	*map_get_iterator(stdmap*);
+void		it_begin(stdmap_it *it);
+void		it_next(stdmap_it* it);
+void		it_previous(stdmap_it* it);
+const char*	it_get_key(stdmap_it* it);
+void*		it_get_value(stdmap_it* it);
+*/
 
-int	get_size(const stdmap* map);
-void*	get_key(const stdmap* map, const char* key);
+void		clear_map(stdmap* map);
 
-void	clear_map(stdmap* map);
-
-char**	list_keys(stdmap* map);
-
-stdmap* new_map();
-void	delete_map(stdmap* map);
+stdmap* 	new_map();
+void		delete_map(stdmap* map);
 
 #endif //STD_MAP_H
