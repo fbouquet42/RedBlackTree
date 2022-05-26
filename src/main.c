@@ -61,6 +61,20 @@ int main()
 	map_remove_key(map, "felix");
 	printf("all good.\n");
 	printf("search key:%s, for value: %i\n", rand_name, *((int*)map_get_key(map, rand_name)));
+
+	stdmap_it* it = it_first(map);
+	while(it_is_valid(it))
+	{
+		printf("%s\n", it_get_key(it));
+		it_next(it);
+	}
+	printf("\n");
+	it = it_last(map);
+	while(it_is_valid(it))
+	{
+		printf("%s\n", it_get_key(it));
+		it_previous(it);
+	}
 	delete_map(map);
 	return 0;
 }
