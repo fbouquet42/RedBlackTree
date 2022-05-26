@@ -80,10 +80,18 @@ int	map_append_key(stdmap* map, const char* key, void* val)
 	return FALSE;
 }
 
+static void delete_pair(void* elem)
+{
+	map_pair* pair =  (map_pair*)elem;
+	free(pair->key);
+	free(pair->val);
+	free(pair);
+}
+
 int	map_remove_key(stdmap* map, const char* key)
 {
 	red_black_tree* root = (red_black_tree*)map->root;
-	if(!remove_value(&root, (const void*)key, &map_pair_key_cmp))
+	if(!remove_value(&root, (const void*)key, &map_pair_key_cmp, &delete_pair))
 		return FALSE;
 	map->size -= 1;
 	map->root = (void*)root;
@@ -102,14 +110,6 @@ void*	map_get_key(const stdmap* map, const char* key)
 	if(!pair)
 		return NULL;
 	return pair->val;
-}
-
-static void delete_pair(void* elem)
-{
-	map_pair* pair =  (map_pair*)elem;
-	free(pair->key);
-	free(pair->val);
-	free(pair);
 }
 
 void	clear_map(stdmap* map)

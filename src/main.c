@@ -58,6 +58,9 @@ int main()
 	printf("search key:%s, for value: %i\n", ".p.hsoGhgwF.hdutnna", *((int*)map_get_key(map, ".p.hsoGhgwF.hdutnna")));
 	printf("search key:%s, for value: %i\n", rand_name, *((int*)map_get_key(map, rand_name)));
 	printf("search key:%s, for value: %i\n", "felix", *((int*)map_get_key(map, "felix")));
+	map_remove_key(map, "felix");
+	printf("all good.\n");
+	printf("search key:%s, for value: %i\n", rand_name, *((int*)map_get_key(map, rand_name)));
 	delete_map(map);
 	return 0;
 }

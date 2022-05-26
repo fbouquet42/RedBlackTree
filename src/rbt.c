@@ -260,7 +260,7 @@ static void resolve_double_black(red_black_tree* parent, red_black_tree* leaf)
 	}
 }
 
-static void remove_leaf(red_black_tree* leaf)
+static void remove_leaf(red_black_tree* leaf, function_to_free f)
 {
 	if(NB_OF_CHILDREN(leaf) < 2) {
 		red_black_tree* branch = NULL;
@@ -280,13 +280,13 @@ static void remove_leaf(red_black_tree* leaf)
 			if(!branch && leaf->color == Black)
 				resolve_double_black(leaf->parent, NULL);
 		}
-		free(leaf->data);
+		f(leaf->data);
 		free(leaf);
 	}
 	else {
 		red_black_tree* inorder_predecessor = find_rightmost_leaf(leaf->left);
 		swap_leaves(leaf, inorder_predecessor);
-		remove_leaf(leaf);
+		remove_leaf(leaf, f);
 	}
 }
 
@@ -300,19 +300,32 @@ static red_black_tree* get_root(red_black_tree* leaf)
 	return leaf;
 }
 
-int remove_value(red_black_tree** root, const void* value, function_to_compare f)
+static red_black_tree* search_leaf(red_black_tree* leaf, const void* value, function_to_compare f)
+{
+	while(leaf) {
+		if(f(leaf->data, value) > 0)
+			leaf = leaf->left;
+		else if(f(leaf->data, value) < 0)
+			leaf = leaf->right;
+		else
+			break;
+	}
+	return leaf;
+}
+
+int remove_value(red_black_tree** root, const void* value, function_to_compare fc, function_to_free ff)
 {
 	red_black_tree* leaf;
 
 	if(!*root)
 		return FALSE;
 
-	if(!(leaf = search_value(*root, value, f)))
+	if(!(leaf = search_leaf(*root, value, fc)))
 		return FALSE;
 
 	red_black_tree* child = (*root)->left ? (*root)->left : (*root)->right;
 
-	remove_leaf(leaf);
+	remove_leaf(leaf, ff);
 
 	if(leaf == *root)
 		*root = get_root(child);
@@ -324,14 +337,7 @@ int remove_value(red_black_tree** root, const void* value, function_to_compare f
 
 void* search_value(red_black_tree* leaf, const void* value, function_to_compare f)
 {
-	while(leaf) {
-		if(f(leaf->data, value) > 0)
-			leaf = leaf->left;
-		else if(f(leaf->data, value) < 0)
-			leaf = leaf->right;
-		else
-			break;
-	}
+	leaf = search_leaf(leaf, value, f);
 	if(!leaf)
 		return NULL;
 	return leaf->data;

@@ -24,7 +24,7 @@ typedef void (*function_to_free)(void* elem);
 
 int 		tree_is_valid(red_black_tree* leaf);
 int		add_value(red_black_tree** root, void* value, function_to_compare f);
-int		remove_value(red_black_tree** root, const void* value, function_to_compare f);
+int		remove_value(red_black_tree** root, const void* value, function_to_compare fc, function_to_free ff);
 void*		search_value(red_black_tree* leaf, const void* value, function_to_compare f);
 int		get_tree_depth(red_black_tree* leaf);
 void		free_tree(red_black_tree* leaf, function_to_free f);
