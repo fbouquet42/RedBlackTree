@@ -7,7 +7,7 @@
 
 # define SIBLING(x) (x->parent->left == x) ? x->parent->right : x->parent->left
 # define NB_OF_CHILDREN(x) ((int)(x->left != NULL) + (int)(x->right != NULL))
-# define COLOR_OF_CHILD(x) (x->left ? x->left->color : (x->right ? x->right->color : Black))
+# define HAS_RED_CHILD(x) (x->left ? x->left->color == Red : FALSE) || (x->right ? x->right->color == Red : FALSE)
 # define TRIANGLE(x, y, z) (x->left == y && y->left != z) || (x->right == y && y->right != z)
 
 typedef struct s_rbt

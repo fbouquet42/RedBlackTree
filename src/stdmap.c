@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <stdio.h>
-
 typedef struct	s_stdmap_it {
 	red_black_tree	*index;
 }		stdmap_it;
@@ -20,6 +18,11 @@ typedef struct	s_map_pair {
 	char* key;
 	void* val;
 }		map_pair;
+
+int	map_is_valid(stdmap* map)
+{
+	return tree_is_valid(map->root);
+}
 
 stdmap_it*	it_first(stdmap* map) {
 	map->iterator->index = map->root;

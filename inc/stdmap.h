@@ -4,6 +4,7 @@
 typedef struct s_stdmap stdmap;
 typedef struct s_stdmap_it stdmap_it;
 
+int	map_is_valid(stdmap* map);
 
 int		map_add_key(stdmap* map, const char* key, void* val);
 int		map_replace_key(stdmap* map, const char* key, void* val); //TODO

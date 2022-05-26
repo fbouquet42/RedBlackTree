@@ -33,7 +33,16 @@ int tree_is_valid(red_black_tree* root)
 	else if(root->color != Black)
 		return ERROR;
 
-	return recursive_check_tree(root);
+	int left;
+	int right;
+
+	left = recursive_check_tree(root->left);
+	right = recursive_check_tree(root->right);
+
+	if(left == ERROR || right == ERROR || left != right)
+		return FALSE;
+	else
+		return TRUE;
 }
 
 int get_tree_depth(red_black_tree* leaf)
@@ -221,6 +230,15 @@ static void swap_leaves(red_black_tree* leaf1, red_black_tree* leaf2)
 	if(leaf1_right && leaf1_right != leaf2)
 		leaf1_right->parent = leaf2;
 
+	if(leaf1->color == Red) {
+		leaf1->color = leaf2->color;
+		leaf2->color = Red;
+	}
+	else {
+		leaf1->color = leaf2->color;
+		leaf2->color = Black;
+	}
+
 }
 
 static red_black_tree *find_rightmost_leaf(red_black_tree* leaf)
@@ -242,7 +260,24 @@ static void resolve_double_black(red_black_tree* parent, red_black_tree* leaf)
 		resolve_double_black(parent, leaf);
 	}
 	else {
-		if(COLOR_OF_CHILD(sibling) == Red) {
+		if(HAS_RED_CHILD(sibling)) {
+			red_black_tree* triangulated_son = NULL;
+
+			if(parent->left == sibling) {
+				if(!sibling->left || sibling->left->color != Red)
+					triangulated_son = sibling->right;
+			}
+			else {
+				if(!sibling->right || sibling->right->color != Red)
+					triangulated_son = sibling->left;
+			}
+			if(triangulated_son) {
+				promote_leaf(triangulated_son);
+				triangulated_son->color = Black;
+				sibling->color = Red;
+				sibling = triangulated_son;
+			}
+
 			promote_leaf(sibling);
 			sibling->color = parent->color;
 			sibling->left->color = Black;
