@@ -1,5 +1,4 @@
-#include "stdmap.h"
-#include "rbt.h"
+#include "uint_map.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,67 +17,18 @@ static char *rand_string(char *str, size_t size)
 	return str;
 }
 
-void* new_value(int i) {
-	int* addr;
-	if(!(addr = (int*)malloc(sizeof(int))))
-		printf("memory error.\n");
-	if(addr)
-		*addr = i;
-	return (void*)addr;
-}
 
 int main()
 {
-	stdmap* map = new_map();
+	stdmap*	map = uint_map_new();
 
-	if(!map)
-		return 0;
+	srand(87463109);
 
-	srand(8877886);
+	int i = 0;
+	char tab[20];
+	while(i++<22000)
+		uint_map_add(map, rand_string(tab, 20), 19);
 
-	int		i = 0;
-	char		rand_name[20];
-
-	while(i++ != 220) {
-		rand_string(rand_name, 20);
-		printf("addr:%i key:%s\n", i, rand_name);
-		map_add_key(map, (char*)rand_name, new_value(i));
-	}
-
-	printf("istree valid:%i\n", map_is_valid(map));
-
-	map_add_key(map, "felix", new_value(101));
-	map_add_key(map, "pelix", new_value(101));
-	map_add_key(map, "gelix", new_value(101));
-	map_add_key(map, "nelix", new_value(101));
-	map_add_key(map, "helix", new_value(101));
-	map_add_key(map, "kkelix", new_value(101));
-
-	printf("istree valid:%i\n", map_is_valid(map));
-
-
-
-	printf("search key:%s, for value: %i\n", rand_name, *((int*)map_get_key(map, rand_name)));
-	printf("search key:%s, for value: %i\n", "felix", *((int*)map_get_key(map, "felix")));
-	map_remove_key(map, "felix");
-	printf("all good.\n");
-	printf("search key:%s, for value: %i\n", rand_name, *((int*)map_get_key(map, rand_name)));
-
-
-	stdmap_it* it = it_first(map);
-	while(it_is_valid(it))
-	{
-		printf("%s\n", it_get_key(it));
-		it_next(it);
-	}
-	printf("\n");
-	it = it_last(map);
-	while(it_is_valid(it))
-	{
-		printf("%s\n", it_get_key(it));
-		it_previous(it);
-	}
-	printf("istree valid:%i\n", map_is_valid(map));
-	delete_map(map);
+	uint_map_delete(map);
 	return 0;
 }

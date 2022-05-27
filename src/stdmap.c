@@ -4,12 +4,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct	s_stdmap_type {
+	map_free_type	ffree;
+	map_copy_type	fcpy;
+}		stdmap_type;
+
 typedef struct	s_stdmap_it {
 	red_black_tree	*index;
 }		stdmap_it;
 
 typedef struct	s_stdmap {
 	red_black_tree	*root;
+	map_free_type	ffree;
+	map_copy_type	fcpy;
 	stdmap_it	*iterator;
 	int		size;
 }		stdmap;
@@ -18,6 +25,14 @@ typedef struct	s_map_pair {
 	char* key;
 	void* val;
 }		map_pair;
+
+void	pair_delete(void* elem)
+{
+	map_pair* pair =  (map_pair*)elem;
+	free(pair->key);
+	free(pair->val);
+	free(pair);
+}
 
 int	map_is_valid(stdmap* map)
 {
@@ -118,35 +133,36 @@ static int map_pair_key_cmp(const void *elem1, const void* key)
 	return strcmp((const char*)pair1->key, (const char*)key);
 }
 
-static void* new_pair(const char* key, void* val)
+static void* pair_new(const char* key, void* val)
 {
 	map_pair*	pair;
 	if(!(pair = (map_pair*)malloc(sizeof(map_pair))))
 		return NULL;
 	memset(pair, 0, sizeof(map_pair));
 
-	char* allocated_key;
-	if(!(allocated_key = (char*)malloc((strlen(key) + 1) * sizeof(char)))) {
+	char*	allocated_key;
+	int	len = strlen(key);
+	if(!(allocated_key = (char*)malloc((len + 1) * sizeof(char)))) {
 		free(pair);
 		return NULL;
 	}
-	memset(allocated_key, 0, sizeof(char) * strlen(key) + 1);
 	strcpy(allocated_key, key);
+	allocated_key[len] = '\0';
 	pair->key = allocated_key;
 	pair->val = val;
 	return pair;
 }
 
-int	map_add_key(stdmap* map, const char* key, void* val)
+int	map_add(stdmap* map, const char* key, void* val)
 {
 	map_pair*	pair;
 
-	if(!(pair = new_pair(key, val)))
+	if(!(pair = pair_new(key, val)))
 		return FALSE;
 
 	red_black_tree* root = map->root;
 
-	if(!add_value(&root, (void*)pair, &map_pair_pair_cmp))
+	if(!add_value(&root, (void*)pair, &map_pair_pair_cmp, map->ffree))
 		return FALSE;
 	map->size += 1;
 	map->root = root;
@@ -154,34 +170,45 @@ int	map_add_key(stdmap* map, const char* key, void* val)
 	return TRUE;
 }
 
-int	map_replace_key(stdmap* map, const char* key, void* val)
+int	map_emplace(stdmap* map, const char* key, void* val)
 {
-	(void)map;
-	(void)key;
-	(void)val;
-	return FALSE;
+	map_pair*	pair;
+
+	if(!(pair = pair_new(key, val)))
+		return FALSE;
+
+	red_black_tree* root = map->root;
+	int		ret;
+
+	ret = emplace_value(&root, (void*)pair, &map_pair_pair_cmp, map->ffree);
+
+	if(ret == FALSE)
+		return FALSE;
+	else if(ret == LEAF_REPLACED)
+		return TRUE;
+	map->size += 1;
+	map->root = root;
+	map->iterator->index = NULL;
+	return TRUE;
 }
 
-int	map_append_key(stdmap* map, const char* key, void* val)
+int	map_replace(stdmap* map, const char* key, void* val)
 {
-	(void)map;
-	(void)key;
-	(void)val;
-	return FALSE;
+	map_pair*	pair;
+
+	if(!(pair = pair_new(key, val)))
+		return FALSE;
+
+	red_black_tree* root = map->root;
+	if(!replace_value(&root, (void*)pair, &map_pair_pair_cmp, map->ffree))
+		return FALSE;
+	return TRUE;
 }
 
-static void delete_pair(void* elem)
-{
-	map_pair* pair =  (map_pair*)elem;
-	free(pair->key);
-	free(pair->val);
-	free(pair);
-}
-
-int	map_remove_key(stdmap* map, const char* key)
+int	map_remove(stdmap* map, const char* key)
 {
 	red_black_tree* root = map->root;
-	if(!remove_value(&root, (const void*)key, &map_pair_key_cmp, &delete_pair))
+	if(!remove_value(&root, (const void*)key, &map_pair_key_cmp, map->ffree))
 		return FALSE;
 	map->size -= 1;
 	map->root = root;
@@ -194,25 +221,66 @@ int	map_get_size(const stdmap* map)
 	return map->size;
 }
 
-void*	map_get_key(const stdmap* map, const char* key)
+void*	map_get_value(const stdmap* map, const char* key)
 {
+	red_black_tree* leaf;
 	map_pair* pair;
-	pair = (map_pair*)search_value((red_black_tree*)(map->root), (const void*)key, &map_pair_key_cmp);
+
+	leaf = search_leaf((red_black_tree*)(map->root), (const void*)key, &map_pair_key_cmp);
+	if(!leaf)
+		return NULL;
+	pair = (map_pair*)leaf->data;
 	if(!pair)
 		return NULL;
 	return pair->val;
 }
 
-void	clear_map(stdmap* map)
+int	map_has_key(const stdmap* map, const char* key)
 {
-	free_tree(map->root, &delete_pair);
+	if(search_leaf((red_black_tree*)(map->root), (const void*)key, &map_pair_key_cmp))
+		return TRUE;
+	return FALSE;
+}
+
+void	map_clear(stdmap* map)
+{
+	free_tree(map->root, map->ffree);
 	map->root = NULL;
+	map->iterator = NULL;
 	map->size = 0;
 }
 
-stdmap*	new_map()
+int             map_join(stdmap* dest, stdmap* src)
+{
+	if(dest->ffree != src->ffree || dest->fcpy != src->fcpy)
+		return FALSE;
+	stdmap_it* it = it_first(src);
+	void* val;
+	while(it_is_valid(it)) {
+		if(!(val = dest->fcpy(it_get_value(it))))
+			return FALSE;
+		map_emplace(dest, it_get_key(it), val);
+		it_next(it);
+	}
+	return TRUE;
+}
+
+stdmap*         map_copy(stdmap* src)
+{
+	stdmap* dest = map_new(src->ffree, src->fcpy);
+	if(!dest)
+		return NULL;
+	if(!map_join(dest, src)) {
+		map_delete(dest);
+		return NULL;
+	}
+	return dest;
+}
+
+stdmap*	map_new(map_free_type ffree, map_copy_type fcpy)
 {
 	stdmap* map;
+
 	if(!(map = (stdmap*)malloc(sizeof(stdmap))))
 		return NULL;
 	stdmap_it* it;
@@ -224,12 +292,14 @@ stdmap*	new_map()
 	memset((void*)map, 0, sizeof(stdmap));
 	memset((void*)it, 0, sizeof(stdmap_it));
 	map->iterator = it;
+	map->ffree = ffree;
+	map->fcpy = fcpy;
 	return map;
 }
 
-void	delete_map(stdmap* map)
+void	map_delete(stdmap* map)
 {
-	clear_map(map);
+	map_clear(map);
 	free(map->iterator);
 	free(map);
 }

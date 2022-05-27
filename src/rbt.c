@@ -140,7 +140,7 @@ static red_black_tree *resolve_tree(red_black_tree* leaf)
 	}
 }
 
-int add_value(red_black_tree** root, void* value, function_to_compare f)
+int emplace_value(red_black_tree** root, void* value, function_to_compare fc, function_to_free ff)
 {
 	red_black_tree* leaf;
 
@@ -156,7 +156,7 @@ int add_value(red_black_tree** root, void* value, function_to_compare f)
 
 	leaf = *root;
 	while(leaf) {
-		if(f(leaf->data, value) > 0) {
+		if(fc(leaf->data, value) > 0) {
 			if(!leaf->left) {
 				red_black_tree* son;
 				if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
@@ -171,7 +171,7 @@ int add_value(red_black_tree** root, void* value, function_to_compare f)
 			else
 				leaf = leaf->left;
 		}
-		else if(f(leaf->data, value) < 0) {
+		else if(fc(leaf->data, value) < 0) {
 			if(!leaf->right) {
 				red_black_tree* son;
 				if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
@@ -186,8 +186,87 @@ int add_value(red_black_tree** root, void* value, function_to_compare f)
 			else
 				leaf = leaf->right;
 		}
-		else
+		else {
+			ff(leaf->data);
+			leaf->data = value;
+			return LEAF_REPLACED;
+		}
+	}
+
+	*root = resolve_tree(leaf);
+
+	return LEAF_ADDED;
+}
+
+int replace_value(red_black_tree** root, void* value, function_to_compare fc, function_to_free ff)
+{
+	red_black_tree* leaf;
+	leaf = *root;
+	while(leaf) {
+		if(fc(leaf->data, value) > 0)
+			leaf = leaf->left;
+		else if(fc(leaf->data, value) < 0)
+			leaf = leaf->right;
+		else {
+			ff(leaf->data);
+			leaf->data = value;
+			return TRUE;
+		}
+	}
+	ff(value);
+	return FALSE;
+}
+
+int add_value(red_black_tree** root, void* value, function_to_compare fc, function_to_free ff)
+{
+	red_black_tree* leaf;
+
+	if(!*root) {
+		if(!(leaf = (red_black_tree*)malloc(sizeof(red_black_tree))))
 			return FALSE;
+		memset(leaf, 0, sizeof(red_black_tree));
+		leaf->color = Black;
+		leaf->data = value;
+		*root = leaf;
+		return TRUE;
+	}
+
+	leaf = *root;
+	while(leaf) {
+		if(fc(leaf->data, value) > 0) {
+			if(!leaf->left) {
+				red_black_tree* son;
+				if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
+					return FALSE;
+				memset(son, 0, sizeof(red_black_tree));
+				son->color = Red;
+				son->data = value;
+				son->parent = leaf;
+				leaf->left = son;
+				break;
+			}
+			else
+				leaf = leaf->left;
+		}
+		else if(fc(leaf->data, value) < 0) {
+			if(!leaf->right) {
+				red_black_tree* son;
+				if(!(son = (red_black_tree*)malloc(sizeof(red_black_tree))))
+					return FALSE;
+				memset(son, 0, sizeof(red_black_tree));
+				son->color = Red;
+				son->data = value;
+				son->parent = leaf;
+				leaf->right = son;
+				break;
+			}
+			else
+				leaf = leaf->right;
+		}
+		else {
+			ff(value);
+			return FALSE;
+		}
 	}
 
 	*root = resolve_tree(leaf);
@@ -335,7 +414,7 @@ static red_black_tree* get_root(red_black_tree* leaf)
 	return leaf;
 }
 
-static red_black_tree* search_leaf(red_black_tree* leaf, const void* value, function_to_compare f)
+red_black_tree* search_leaf(red_black_tree* leaf, const void* value, function_to_compare f)
 {
 	while(leaf) {
 		if(f(leaf->data, value) > 0)
@@ -368,14 +447,6 @@ int remove_value(red_black_tree** root, const void* value, function_to_compare f
 		*root = get_root(*root);
 
 	return TRUE;
-}
-
-void* search_value(red_black_tree* leaf, const void* value, function_to_compare f)
-{
-	leaf = search_leaf(leaf, value, f);
-	if(!leaf)
-		return NULL;
-	return leaf->data;
 }
 
 void free_tree(red_black_tree* leaf, function_to_free f)
