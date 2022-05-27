@@ -181,7 +181,6 @@ int	map_emplace(stdmap* map, const char* key, void* val)
 	int		ret;
 
 	ret = emplace_value(&root, (void*)pair, &map_pair_pair_cmp, map->ffree);
-
 	if(ret == FALSE)
 		return FALSE;
 	else if(ret == LEAF_REPLACED)

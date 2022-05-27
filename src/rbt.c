@@ -151,7 +151,7 @@ int emplace_value(red_black_tree** root, void* value, function_to_compare fc, fu
 		leaf->color = Black;
 		leaf->data = value;
 		*root = leaf;
-		return TRUE;
+		return LEAF_ADDED;
 	}
 
 	leaf = *root;
