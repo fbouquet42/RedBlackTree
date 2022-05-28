@@ -29,17 +29,17 @@ void	pair_delete(void* elem)
 	free(pair);
 }
 
-int	map_is_valid(stdmap* map)
+int map_is_valid(stdmap* map)
 {
 	return tree_is_valid(map->root);
 }
 
-stdmap_it*	it_first(stdmap* map) {
+stdmap_it* it_first(stdmap* map) {
 	map->iterator->index = map->root;
 	return map->iterator;
 }
 
-stdmap_it*	it_last(stdmap* map) {
+stdmap_it* it_last(stdmap* map) {
 	red_black_tree* last = map->root;
 	if(last) {
 		while(last->right)
@@ -51,7 +51,7 @@ stdmap_it*	it_last(stdmap* map) {
 	return map->iterator;
 }
 
-void		it_next(stdmap_it* it) {
+void it_next(stdmap_it* it) {
 	if(it->index->left) {
 		it->index = it->index->left;
 	}
@@ -73,7 +73,7 @@ void		it_next(stdmap_it* it) {
 	}
 }
 
-void		it_previous(stdmap_it* it)
+void it_previous(stdmap_it* it)
 {
 	red_black_tree *from;
 	from = it->index;
@@ -92,12 +92,12 @@ void		it_previous(stdmap_it* it)
 		return;
 }
 
-int		it_is_valid(stdmap_it* it)
+int it_is_valid(stdmap_it* it)
 {
 	return (it->index) ? TRUE : FALSE;
 }
 
-const char*	it_get_key(stdmap_it* it)
+const char* it_get_key(stdmap_it* it)
 {
 	map_pair* pair;
 
@@ -106,7 +106,7 @@ const char*	it_get_key(stdmap_it* it)
 	return (const char*)(pair->key);
 }
 
-void*		it_get_value(stdmap_it* it)
+void* it_get_value(stdmap_it* it)
 {
 	map_pair* pair;
 
@@ -148,7 +148,7 @@ static void* pair_new(const char* key, void* val)
 	return pair;
 }
 
-int	map_add(stdmap* map, const char* key, void* val)
+int map_add(stdmap* map, const char* key, void* val)
 {
 	map_pair*	pair;
 
@@ -165,7 +165,7 @@ int	map_add(stdmap* map, const char* key, void* val)
 	return TRUE;
 }
 
-int	map_emplace(stdmap* map, const char* key, void* val)
+int map_emplace(stdmap* map, const char* key, void* val)
 {
 	map_pair*	pair;
 
@@ -186,7 +186,7 @@ int	map_emplace(stdmap* map, const char* key, void* val)
 	return TRUE;
 }
 
-int	map_replace(stdmap* map, const char* key, void* val)
+int map_replace(stdmap* map, const char* key, void* val)
 {
 	map_pair*	pair;
 
@@ -199,7 +199,7 @@ int	map_replace(stdmap* map, const char* key, void* val)
 	return TRUE;
 }
 
-int	map_remove(stdmap* map, const char* key)
+int map_remove(stdmap* map, const char* key)
 {
 	red_black_tree* root = map->root;
 	if(!tree_remove(&root, (const void*)key, &map_pair_key_cmp, map->ffree))
@@ -210,12 +210,12 @@ int	map_remove(stdmap* map, const char* key)
 	return TRUE;
 }
 
-int	map_get_size(const stdmap* map)
+int map_get_size(const stdmap* map)
 {
 	return map->size;
 }
 
-void*	map_get_value(const stdmap* map, const char* key)
+void* map_get_value(const stdmap* map, const char* key)
 {
 	red_black_tree* leaf;
 	map_pair* pair;
@@ -229,14 +229,14 @@ void*	map_get_value(const stdmap* map, const char* key)
 	return pair->val;
 }
 
-int	map_has_key(const stdmap* map, const char* key)
+int map_has_key(const stdmap* map, const char* key)
 {
 	if(tree_get_leaf((red_black_tree*)(map->root), (const void*)key, &map_pair_key_cmp))
 		return TRUE;
 	return FALSE;
 }
 
-void	map_clear(stdmap* map)
+void map_clear(stdmap* map)
 {
 	tree_delete(map->root, map->ffree);
 	map->root = NULL;
@@ -244,7 +244,7 @@ void	map_clear(stdmap* map)
 	map->size = 0;
 }
 
-int             map_join(stdmap* dest, stdmap* src)
+int map_join(stdmap* dest, stdmap* src)
 {
 	if(dest->ffree != src->ffree || dest->fcpy != src->fcpy)
 		return FALSE;
@@ -259,7 +259,7 @@ int             map_join(stdmap* dest, stdmap* src)
 	return TRUE;
 }
 
-stdmap*         map_copy(stdmap* src)
+stdmap* map_copy(stdmap* src)
 {
 	stdmap* dest = map_new(src->ffree, src->fcpy);
 	if(!dest)
@@ -271,7 +271,7 @@ stdmap*         map_copy(stdmap* src)
 	return dest;
 }
 
-stdmap*	map_new(map_free_type ffree, map_copy_type fcpy)
+stdmap* map_new(map_free_type ffree, map_copy_type fcpy)
 {
 	stdmap* map;
 
@@ -291,7 +291,7 @@ stdmap*	map_new(map_free_type ffree, map_copy_type fcpy)
 	return map;
 }
 
-void	map_delete(stdmap* map)
+void map_delete(stdmap* map)
 {
 	map_clear(map);
 	free(map->iterator);
