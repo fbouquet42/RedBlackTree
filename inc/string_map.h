@@ -12,12 +12,12 @@ stdmap* 	string_map_new();
 /*
  * Generics
  */
-//map_remove
-//map_get_size
-//map_has_key
-//map_join
-//map_clear
-//map_copy
-//map_delete
+//int		map_remove(stdmap* map, const char* key);
+//int		map_get_size(const stdmap* map);
+//int		map_has_key(const stdmap* map, const char* key);
+//int		map_join(stdmap* dest, stdmap* src);
+//void		map_clear(stdmap* map);
+//stdmap*	map_copy(stdmap* src);
+//void		map_delete(stdmap* map);
 
 #endif //STRING_MAP_H

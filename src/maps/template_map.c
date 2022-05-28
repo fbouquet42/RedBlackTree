@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#define map_template_src(name, type) static void* copy##_##name(void* val) \
+#define MAP_TEMPLATE_SRC(name, type) static void* copy##_##name(void* val) \
 { \
 	type* new_val; \
  \
@@ -38,11 +38,11 @@ type name##_##get_value(const stdmap* map, const char* key) \
 	return *((type*)map_get_value(map, key)); \
 }
 
-map_template_src(uchar, unsigned char)
-map_template_src(char, char)
-map_template_src(ushort, unsigned short)
-map_template_src(short, short)
-map_template_src(uint, unsigned int)
-map_template_src(int, int)
-map_template_src(float, float)
-map_template_src(double, double)
+MAP_TEMPLATE_SRC(uchar, unsigned char)
+MAP_TEMPLATE_SRC(char, char)
+MAP_TEMPLATE_SRC(ushort, unsigned short)
+MAP_TEMPLATE_SRC(short, short)
+MAP_TEMPLATE_SRC(uint, unsigned int)
+MAP_TEMPLATE_SRC(int, int)
+MAP_TEMPLATE_SRC(float, float)
+MAP_TEMPLATE_SRC(double, double)
