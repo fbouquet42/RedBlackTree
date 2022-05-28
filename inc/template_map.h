@@ -1,5 +1,5 @@
-#ifndef UINT_MAP_H
-# define UINT_MAP_H
+#ifndef TEMPLATE_MAP_H
+# define TEMPLATE_MAP_H
 
 # include "stdmap.h"
 
@@ -30,4 +30,4 @@ map_template_inc(int, int)
 map_template_inc(float, float)
 map_template_inc(double, double)
 
-#endif //UINT_MAP_H
+#endif //TEMPLATE_MAP_H
