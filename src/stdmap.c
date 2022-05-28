@@ -162,7 +162,7 @@ int	map_add(stdmap* map, const char* key, void* val)
 
 	red_black_tree* root = map->root;
 
-	if(!add_value(&root, (void*)pair, &map_pair_pair_cmp, map->ffree))
+	if(!tree_add(&root, (void*)pair, &map_pair_pair_cmp, map->ffree))
 		return FALSE;
 	map->size += 1;
 	map->root = root;
@@ -180,7 +180,7 @@ int	map_emplace(stdmap* map, const char* key, void* val)
 	red_black_tree* root = map->root;
 	int		ret;
 
-	ret = emplace_value(&root, (void*)pair, &map_pair_pair_cmp, map->ffree);
+	ret = tree_emplace(&root, (void*)pair, &map_pair_pair_cmp, map->ffree);
 	if(ret == FALSE)
 		return FALSE;
 	else if(ret == LEAF_REPLACED)
@@ -199,7 +199,7 @@ int	map_replace(stdmap* map, const char* key, void* val)
 		return FALSE;
 
 	red_black_tree* root = map->root;
-	if(!replace_value(&root, (void*)pair, &map_pair_pair_cmp, map->ffree))
+	if(!tree_replace(&root, (void*)pair, &map_pair_pair_cmp, map->ffree))
 		return FALSE;
 	return TRUE;
 }
@@ -207,7 +207,7 @@ int	map_replace(stdmap* map, const char* key, void* val)
 int	map_remove(stdmap* map, const char* key)
 {
 	red_black_tree* root = map->root;
-	if(!remove_value(&root, (const void*)key, &map_pair_key_cmp, map->ffree))
+	if(!tree_remove(&root, (const void*)key, &map_pair_key_cmp, map->ffree))
 		return FALSE;
 	map->size -= 1;
 	map->root = root;
@@ -225,7 +225,7 @@ void*	map_get_value(const stdmap* map, const char* key)
 	red_black_tree* leaf;
 	map_pair* pair;
 
-	leaf = search_leaf((red_black_tree*)(map->root), (const void*)key, &map_pair_key_cmp);
+	leaf = tree_get_leaf((red_black_tree*)(map->root), (const void*)key, &map_pair_key_cmp);
 	if(!leaf)
 		return NULL;
 	pair = (map_pair*)leaf->data;
@@ -236,14 +236,14 @@ void*	map_get_value(const stdmap* map, const char* key)
 
 int	map_has_key(const stdmap* map, const char* key)
 {
-	if(search_leaf((red_black_tree*)(map->root), (const void*)key, &map_pair_key_cmp))
+	if(tree_get_leaf((red_black_tree*)(map->root), (const void*)key, &map_pair_key_cmp))
 		return TRUE;
 	return FALSE;
 }
 
 void	map_clear(stdmap* map)
 {
-	free_tree(map->root, map->ffree);
+	tree_delete(map->root, map->ffree);
 	map->root = NULL;
 	map->iterator = NULL;
 	map->size = 0;

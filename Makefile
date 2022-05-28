@@ -19,7 +19,13 @@ EOC=\033[0m
 
 S_PATH= src/
 SRCIN = $(addprefix $(S_PATH), $(SRCS))
-SRCS = main.c rbt.c stdmap.c uint_map.c
+SRCS = main.c stdmap.c uint_map.c
+
+SRC_PATH_RBT	= $(S_PATH)rbt/
+
+SRC_RBT		= leaf_promote.c tree_get_depth.c tree_replace.c tree_add.c \
+		  tree_get_leaf.c tree_resolve_double_red.c tree_delete.c \
+		  tree_is_valid.c tree_emplace.c tree_remove.c
 
 #============HEADERS============#
 
@@ -28,8 +34,11 @@ H_PATH= inc/
 #============OBJECTS============#
 
 O_PATH= .obj/
-OBJIN = $(addprefix $(O_PATH), $(OBJS))
+OBJIN = $(addprefix $(O_PATH), $(OBJS)) \
+	$(addprefix $(O_PATH), $(OBJ_RBT))
+
 OBJS= $(SRCS:.c=.o)
+OBJ_RBT= $(SRC_RBT:.c=.o)
 
 #=============RULES=============#
 
@@ -39,6 +48,12 @@ $(O_PATH)%.o: $(S_PATH)%.c Makefile $(H_PATH)
 	@mkdir -p $(O_PATH)
 	@$(CC) $(FLAGS) -c $< -o $@ -I $(H_PATH)
 	@printf "$(GREEN)+$(EOC)"
+
+$(O_PATH)%.o: $(SRC_PATH_RBT)%.c Makefile $(H_PATH)
+	@mkdir -p $(O_PATH)
+	@$(CC) $(FLAGS) -c $< -o $@ -I $(H_PATH)
+	@printf "$(GREEN)+$(EOC)"
+
 
 $(EXE): $(LIBRARY) $(OBJIN)
 	@echo "\t$(EXE)'s objects compiled"
