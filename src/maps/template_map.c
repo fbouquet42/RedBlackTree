@@ -36,6 +36,11 @@ stdmap*	name##_##map_new() \
 type name##_##get_value(const stdmap* map, const char* key) \
 { \
 	return *((type*)map_get_value(map, key)); \
+} \
+ \
+type it_get_value_as##_##name(stdmap_it* it) \
+{ \
+	return *((type*)it_get_value(it)); \
 }
 
 MAP_TEMPLATE_SRC(uchar, unsigned char)

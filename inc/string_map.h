@@ -9,6 +9,8 @@ int		string_map_emplace_key(stdmap* map, const char* key, char* val);
 char*		string_get_value(const stdmap* map, const char* key);
 stdmap* 	string_map_new();
 
+char*		it_get_value_as_string(stdmap_it* it);
+
 /*
  * Generics
  */
@@ -19,5 +21,12 @@ stdmap* 	string_map_new();
 //void		map_clear(stdmap* map);
 //stdmap*	map_copy(stdmap* src);
 //void		map_delete(stdmap* map);
+//
+//stdmap_it*	it_first(stdmap *map);
+//stdmap_it*	it_last(stdmap *map);
+//int		it_is_valid(stdmap_it* it);
+//void		it_next(stdmap_it* it);
+//void		it_previous(stdmap_it* it);
+//const char*	it_get_key(stdmap_it* it);
 
 #endif //STRING_MAP_H

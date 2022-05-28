@@ -8,7 +8,9 @@ int		name##_##map_add(stdmap* map, const char* key, type val); \
 int		name##_##map_replace(stdmap* map, const char* key, type val); \
 int		name##_##map_emplace_key(stdmap* map, const char* key, type val); \
 type		name##_##get_value(const stdmap* map, const char* key); \
-stdmap* 	name##_##map_new();
+stdmap* 	name##_##map_new(); \
+ \
+type		it_get_value_as##_##name(stdmap_it* it);
 
 /*
  * Generics
@@ -20,6 +22,13 @@ stdmap* 	name##_##map_new();
 //void		map_clear(stdmap* map);
 //stdmap*	map_copy(stdmap* src);
 //void		map_delete(stdmap* map);
+//
+//stdmap_it*	it_first(stdmap *map);
+//stdmap_it*	it_last(stdmap *map);
+//int		it_is_valid(stdmap_it* it);
+//void		it_next(stdmap_it* it);
+//void		it_previous(stdmap_it* it);
+//const char*	it_get_key(stdmap_it* it);
 
 MAP_TEMPLATE_INC(uchar, unsigned char)
 MAP_TEMPLATE_INC(char, char)

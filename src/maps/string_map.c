@@ -41,3 +41,8 @@ char* string_map_get_value(const stdmap* map, const char* key)
 {
 	return (char*)map_get_value(map, key);
 }
+
+char* it_get_value_as_string(stdmap_it* it)
+{
+	return (char*)it_get_value(it);
+}
