@@ -24,7 +24,7 @@ SRCS = main.c
 
 SRC_PATH_MAPS	= $(S_PATH)maps/
 
-SRC_MAPS	= stdmap.c uint_map.c string_map.c
+SRC_MAPS	= stdmap.c template_map.c string_map.c
 
 SRC_PATH_RBT	= $(S_PATH)rbt/
 
