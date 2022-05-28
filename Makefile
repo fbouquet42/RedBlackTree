@@ -17,9 +17,14 @@ EOC=\033[0m
 
 #=============SOURCES============#
 
+#SRCIN = $(addprefix $(S_PATH), $(SRCS))
+
 S_PATH= src/
-SRCIN = $(addprefix $(S_PATH), $(SRCS))
-SRCS = main.c stdmap.c uint_map.c
+SRCS = main.c
+
+SRC_PATH_MAPS	= $(S_PATH)maps/
+
+SRC_MAPS	= stdmap.c uint_map.c
 
 SRC_PATH_RBT	= $(S_PATH)rbt/
 
@@ -35,10 +40,12 @@ H_PATH= inc/
 
 O_PATH= .obj/
 OBJIN = $(addprefix $(O_PATH), $(OBJS)) \
-	$(addprefix $(O_PATH), $(OBJ_RBT))
+	$(addprefix $(O_PATH), $(OBJ_RBT)) \
+	$(addprefix $(O_PATH), $(OBJ_MAPS))
 
 OBJS= $(SRCS:.c=.o)
 OBJ_RBT= $(SRC_RBT:.c=.o)
+OBJ_MAPS= $(SRC_MAPS:.c=.o)
 
 #=============RULES=============#
 
@@ -54,6 +61,10 @@ $(O_PATH)%.o: $(SRC_PATH_RBT)%.c Makefile $(H_PATH)
 	@$(CC) $(FLAGS) -c $< -o $@ -I $(H_PATH)
 	@printf "$(GREEN)+$(EOC)"
 
+$(O_PATH)%.o: $(SRC_PATH_MAPS)%.c Makefile $(H_PATH)
+	@mkdir -p $(O_PATH)
+	@$(CC) $(FLAGS) -c $< -o $@ -I $(H_PATH)
+	@printf "$(GREEN)+$(EOC)"
 
 $(EXE): $(LIBRARY) $(OBJIN)
 	@echo "\t$(EXE)'s objects compiled"

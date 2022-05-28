@@ -4,11 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct	s_stdmap_type {
-	map_free_type	ffree;
-	map_copy_type	fcpy;
-}		stdmap_type;
-
 typedef struct	s_stdmap_it {
 	red_black_tree	*index;
 }		stdmap_it;

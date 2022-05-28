@@ -31,8 +31,6 @@ int main()
 
 	stdmap* map2 = uint_map_copy(map);
 
-	//uint_map_join(map, map2);
-
 	stdmap_it* it = it_first(map);
 	while(it_is_valid(it)) {
 		printf("%s\n", it_get_key(it));
