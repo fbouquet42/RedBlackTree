@@ -2,7 +2,7 @@
 
 #==========EXECUTABLES==========#
 
-EXE= rbt
+EXE= rbt.out
 
 #=======COMPILER AND FLAGS======#
 
